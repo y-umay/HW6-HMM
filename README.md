@@ -20,7 +20,7 @@ For a helpful refresher on HMMs and the Forward and Viterbi Algorithms you can c
 
 1. Clone the repository:
    \`\`\`bash
-   git clone https://github.com/BMI203-2024/HW6-HMM.git
+   git clone https://github.com/y-umay/HW6-HMM.git
    cd HW6-HMM
    \`\`\`
 
