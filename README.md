@@ -7,79 +7,160 @@ In this assignment, you'll implement the Forward and Viterbi Algorithms (dynamic
 
 ## Overview 
 
-The goal of this assignment is to implement the Forward and Viterbi Algorithms for Hidden Markov Models (HMMs).
+The goal of this assignment is to implement the Forward and Viterbi Algorithms for Hidden Markov Models (HMMs). These algorithms are fundamental for determining the probability of an observed sequence (Forward Algorithm) and the most likely sequence of hidden states given the observed data (Viterbi Algorithm).
 
 For a helpful refresher on HMMs and the Forward and Viterbi Algorithms you can check out the resources [here](https://web.stanford.edu/~jurafsky/slp3/A.pdf), 
 [here](https://towardsdatascience.com/markov-and-hidden-markov-model-3eec42298d75), and [here](https://pieriantraining.com/viterbi-algorithm-implementation-in-python-a-practical-guide/). 
 
+---
 
+## Installation
 
+### Local Installation (with Flit)
 
+1. Clone the repository:
+   \`\`\`bash
+   git clone https://github.com/BMI203-2024/HW6-HMM.git
+   cd HW6-HMM
+   \`\`\`
 
-## Tasks and Data 
-Please complete the `forward` and `viterbi` functions in the HiddenMarkovModel class. 
+2. Install the package:
+   \`\`\`bash
+   pip install flit
+   flit install
+   \`\`\`
 
-We have provided two HMM models (mini_weather_hmm.npz and full_weather_hmm.npz) which explore the relationships between observable weather phenomenon and the temperature outside. Start with the mini_weather_hmm model for testing and debugging. Both include the following arrays:
-* `hidden_states`: list of possible hidden states 
-* `observation_states`: list of possible observation states 
-* `prior_p`: prior probabilities of hidden states (in order given in `hidden_states`) 
-* `transition_p`: transition probabilities of hidden states (in order given in `hidden_states`)
-* `emission_p`: emission probabilities (`hidden_states` --> `observation_states`)
+After installation, you can import the model:
+\`\`\`python
+from hmm import HiddenMarkovModel
+\`\`\`
 
+---
 
+## Running the Tests
 
-For both datasets, we also provide input observation sequences and the solution for their best hidden state sequences. 
- * `observation_state_sequence`: observation sequence to test 
-* `best_hidden_state_sequence`: correct viterbi hidden state sequence 
+To run the tests with detailed output:
+\`\`\`bash
+python -m pytest -vv test/*py
+\`\`\`
 
+Or using the basic command:
+\`\`\`bash
+pytest test_hmm.py
+\`\`\`
 
-Create an HMM class instance for both models and test that your Forward and Viterbi implementation returns the correct probabilities and hidden state sequence for each of the observation sequences.
+Tests cover both the mini and full weather datasets, including edge cases.
 
-Within your code, consider the scope of the inputs and how the different parameters of the input data could break the bounds of your implementation.
-  * Do your model probabilites add up to the correct values? Is scaling required?
-  * How will your model handle zero-probability transitions? 
-  * Are the inputs in compatible shapes/sizes which each other? 
-  * Any other edge cases you can think of?
-  * Ensure that your code accomodates at least 2 possible edge cases. 
+---
 
-Finally, please update your README with a brief description of your methods. 
+## GitHub Actions (CI)
 
+Automated testing runs on every push or pull request.  
+View the latest build status in the [Actions tab](https://github.com/y-umay/HW6-HMM/actions).
 
+---
+
+## Methods
+
+### HiddenMarkovModel Class
+The `HiddenMarkovModel` class encapsulates the following components:
+- **Initialization (`__init__`)**: Loads the observation states, hidden states, prior probabilities, transition probabilities, and emission probabilities into the model.
+- **Forward Algorithm (`forward`)**: 
+  - Calculates the probability (likelihood) of an observed sequence.
+  - Uses dynamic programming with an alpha matrix for probabilities.
+  - Edge cases handled: empty sequences, single observations, and zero-probability transitions.
+- **Viterbi Algorithm (`viterbi`)**: 
+  - Finds the most likely sequence of hidden states for a given observed sequence.
+  - Employs dynamic programming with a viterbi table and backpointer matrix.
+  - Handles edge cases similar to the forward algorithm.
+
+---
+
+## Data 
+The assignment includes two datasets:
+1. **mini_weather_hmm.npz**: For initial testing and debugging.
+2. **full_weather_hmm.npz**: For final evaluation.
+
+Each dataset contains:
+- `hidden_states`: Possible hidden states.
+- `observation_states`: Possible observable states.
+- `prior_p`: Prior probabilities for hidden states.
+- `transition_p`: Transition probabilities between hidden states.
+- `emission_p`: Emission probabilities from hidden states to observed states.
+
+Additionally, observation sequences and their corresponding best hidden state sequences are provided:
+- `observation_state_sequence`
+- `best_hidden_state_sequence`
+
+---
+
+## Unit Testing
+
+### Tests Implemented
+Tests are implemented using `pytest` in `test_hmm.py`.
+
+### Mini Weather Model
+- **Correctness Tests**:
+  - Verifies that the forward algorithm returns a positive probability.
+  - Confirms that the Viterbi sequence matches the expected hidden states.
+- **Edge Cases**:
+  - Empty observation sequence (raises `IndexError` or `ValueError`).
+  - Single observation sequence returns valid results.
+  - Zero-probability transition matrix results in zero forward probability.
+
+### Full Weather Model
+- **Correctness Tests**:
+  - Forward algorithm returns a positive probability.
+  - Viterbi algorithm returns the correct sequence and correct sequence length.
+
+---
+
+## Edge Cases Handled
+1. **Empty Observation Sequence**: Properly raises exceptions.
+2. **Single Observation**: Returns valid probabilities and sequences.
+3. **Zero-Probability Transitions**: Forward probability returns zero; Viterbi handles gracefully.
+
+---
+
+## Usage Example
+
+\`\`\`python
+from hmm import HiddenMarkovModel
+import numpy as np
+
+hmm_model = HiddenMarkovModel(
+    hidden_states=["Rainy", "Sunny"],
+    observation_states=["Walk", "Shop", "Clean"],
+    prior_p=np.array([0.6, 0.4]),
+    transition_p=np.array([[0.7, 0.3], [0.4, 0.6]]),
+    emission_p=np.array([[0.1, 0.4, 0.5], [0.6, 0.3, 0.1]])
+)
+
+observations = ["Walk", "Shop", "Clean"]
+viterbi_path = hmm_model.viterbi(observations)
+forward_prob = hmm_model.forward(observations)
+
+print("Best hidden state sequence:", viterbi_path)
+print("Forward probability:", forward_prob)
+\`\`\`
+
+---
 
 ## Task List
 
-[TODO] Complete the HiddenMarkovModel Class methods  <br>
-  [ ] complete the `forward` function in the HiddenMarkovModelClass <br>
-  [ ] complete the `viterbi` function in the HiddenMarkovModelClass <br>
+- [x] Complete the `HiddenMarkovModel` class methods
+  - [x] Implement `forward` function
+  - [x] Implement `viterbi` function
+- [x] Unit Testing
+  - [x] Mini weather dataset
+  - [x] Full weather dataset
+  - [x] Edge cases (empty input, single observation, zero-probability transitions)
+- [x] Updated README with methods description
+- [x] Optional: Make the module pip installable
+- [x] Optional: Set up GitHub Actions for automated testing
 
-[TODO] Unit Testing  <br>
-  [ ] Ensure functionality on mini and full weather dataset <br>
-  [ ] Account for edge cases 
+---
 
-[TODO] Packaging <br>
-  [ ] Update README with description of your methods <br>
-  [ ] pip installable module (optional)<br>
-  [ ] github actions (install + pytest) (optional)
+## License
 
-
-## Completing the Assignment 
-Push your code to GitHub with passing unit tests, and submit a link to your repository [here](https://forms.gle/xw98ZVQjaJvZaAzSA)
-
-### Grading 
-
-* Algorithm implementation (6 points)
-    * Forward algorithm is correct (2)
-    * Viterbi is correct (2)
-    * Output is correct on small weather dataset (1)
-    * Output is correct on full weather dataset (1)
-
-* Unit Tests (3 points)
-    * Mini model unit test (1)
-    * Full model unit test (1)
-    * Edge cases (1)
-
-* Style (1 point)
-    * Readable code and updated README with a description of your methods 
-
-* Extra credit (0.5 points)
-    * Pip installable and Github actions (0.5)
+This project is licensed under the MIT License. See \`LICENSE\` for details.
